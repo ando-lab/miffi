@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "miffi"
+authors = [
+    {name = "Da Xu", email = "dx63@cornell.edu"},
+]
+description = "cryo-EM micrograph filtering utilizing Fourier space information"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "pyyaml",
+    "starfile",
+    "mrcfile",
+    "torch>=1.13.1",
+    "torchvision",
+    "numpy",
+    "tqdm",
+    "matplotlib",
+    "timm>=0.5.4",
+    "ipywidgets",
+    "jupyterlab",
+]
+dynamic = ["version"]
+
+[project.scripts]
+miffi = "miffi.__main__:main"
+
+[tool.setuptools_scm]
+write_to = "miffi/_version.py"
+
+[tool.setuptools]
+packages = ["miffi"]
