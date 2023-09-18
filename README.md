@@ -40,7 +40,7 @@ pip install .
 
 ## Usage
 
-The following sections outline basic usage of the miffi package. To see all available options for different commands, refer to `--help`.
+The following sections outline basic usage of the miffi package. To see all available arguments for different commands, refer to `--help`.
 
 ### Download miffi models
 
@@ -65,7 +65,7 @@ miffi inference -f path/to/csfile -d path/to/data/dir --outname output_name \
                 -g gpu_id_to_use -m path/to/model/dir
 ```
 
-Explanation of above options:
+Details on arguments used above:
 
 - `-f` Path to the file containing input micrograph list.
 - `-d` Path to the data directory. This is often needed when micrograph path in the file is not absolute path. For star and cs files, this is usually the path to the root of the project directory.
@@ -85,12 +85,12 @@ miffi catagorize -t cs -i path/to/inference/result --cs path/to/original/csfile 
                  --sb --sc
 ```
 
-Explanation of above options:
+Details on arguments used above:
 
 - `-t` Type of the output, can be one of the following: `list`, `star`, `cs`.
 - `-i` Path to the inference result file.
 - `--cs` `--ptcs` `--csg` Path to the original cs, passthrough cs, and csg files, which are necessary for outputting cs files. To output star files, path to the original star file needs to be provided through `--star`.
-- `--sb` Split all singly bad micrographs into individual catagories. If this tag is not used, only film and minor crystalline catagories will be written.
+- `--sb` Split all singly bad micrographs into individual catagories. If this argument is not used, only film and minor crystalline catagories will be written.
 - `--sc` Split all catagories into high and low confidence based on a cutoff value. Default confidence cutoff is 0.7, but can be configured through `--gc` for good predictions and `--bc` for bad predictions.
 
 To load output cs files into cryosparc, use "Import Result Group" job and input the output csg file of the corresponding catagory.
@@ -104,7 +104,7 @@ miffi write_png -f path/to/starfile -d path/to/data/dir -o path/to/output/dir \
                 -q -n number_of_threads
 ```
 
-Explanation of above options:
+Details on arguments used above:
 
 - `-f` Path to the file containing input micrograph list.
 - `-d` Path to the data directory.

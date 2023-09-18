@@ -1,6 +1,6 @@
 # Training scripts for miffi models
 
-This folder contains scripts used to train the miffi models. These scripts are independent from the miffi package. Refer to `--help` for all available options for each script.
+This folder contains scripts used to train the miffi models. These scripts are independent from the miffi package. Refer to `--help` for all available arguments for each script.
 
 ## Preprocess
 
