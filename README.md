@@ -53,7 +53,7 @@ miffi download -d path/to/download/dir
 To download all available full models, use `--all` tag. A specific model can be downloaded by using `--model-name model_to_download`. Currently available models:
 
 - `miffi_v1` - Model trained with finetuning and power spectrum input. (Default model)
-- `miffi_no_ps_v1` - Model trained with finetuning but without power spectrum input. May be useful for filtering micrographs with pixel sizes larger than 3.0 Å.
+- `miffi_no_ps_v1` - Model trained with finetuning but without power spectrum input. May be useful for filtering micrographs with pixel sizes larger than 1.5 Å.
 - `miffi_no_pretrain_no_ps_v1` - Model trained without finetuning or power spectrum input. (not recommended for anything, for validation purpose only)
 
 ### Inference micrographs
@@ -89,7 +89,7 @@ Details on arguments used above:
 
 - `-t` Type of the output, can be one of the following: `list`, `star`, `cs`.
 - `-i` Path to the inference result file.
-- `--cs` `--ptcs` `--csg` Path to the original cs, passthrough cs, and csg files, which are necessary for outputting cs files. To output star files, path to the original star file needs to be provided through `--star`.
+- `--cs` `--ptcs` `--csg` Path to the original cs, passthrough cs, and csg files, which are necessary for outputting cs files. If no passthrough cs file is available (e.g. import jobs), main cs file can be used for both cs and passthrough cs input. To output star files, path to the original star file needs to be provided through `--star`.
 - `--sb` Split all singly bad micrographs into individual catagories. If this argument is not used, only film and minor crystalline catagories will be written.
 - `--sc` Split all catagories into high and low confidence based on a cutoff value. Default confidence cutoff is 0.7, but can be configured through `--gc` for good predictions and `--bc` for bad predictions.
 
