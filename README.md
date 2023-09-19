@@ -50,7 +50,7 @@ Full miffi models and state dicts are hosted on Zenodo (https://doi.org/10.5281/
 miffi download -d path/to/download/dir
 ```
 
-To download all available full models, use `--all` tag. A specific model can be downloaded by using `--model-name model_to_download`. Currently available models:
+To download all available full models, use `--all` argument. A specific model can be downloaded by using `--model-name model_to_download`. Currently available models:
 
 - `miffi_v1` - Model trained with finetuning and power spectrum input. (Default model)
 - `miffi_no_ps_v1` - Model trained with finetuning but without power spectrum input. May be useful for filtering micrographs with pixel sizes larger than 1.5 Å.
