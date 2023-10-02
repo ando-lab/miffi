@@ -1,5 +1,5 @@
 """
-Catagorize micrographs based on inference result with default labels
+Categorize micrographs based on inference result with default labels
 """
 
 import logging
@@ -11,7 +11,7 @@ import numpy as np
 import yaml
 import torch
 from .utils import load_pkl
-from .parameters import DEFAULT_LABEL_NAMES, CATAGORY_DEFAULT, CATAGORY_ALL, CATAGORY_GOOD_PREDICTIONS, CONF_SPLIT_NAMES
+from .parameters import DEFAULT_LABEL_NAMES, CATEGORY_DEFAULT, CATEGORY_ALL, CATEGORY_GOOD_PREDICTIONS, CONF_SPLIT_NAMES
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +68,7 @@ def add_args(parser):
     parser.add_argument(
         '--sb',
         action='store_true',
-        help="Output all singly bad predictions into individual catagories",
+        help="Output all singly bad predictions into individual categories",
     )
     parser.add_argument(
         '--sc',
@@ -79,13 +79,13 @@ def add_args(parser):
         '--gc',
         type=float,
         default=0.7,
-        help="Confience cutoff for good predictions. Good prediction with a confidence lower than cutoff will be catagoraized as low confidence good prediction",
+        help="Confience cutoff for good predictions. Good prediction with a confidence lower than cutoff will be categoraized as low confidence good prediction",
     )
     parser.add_argument(
         '--bc',
         type=float,
         default=0.7,
-        help="Confience cutoff for bad predictions. Bad prediction with a confidence lower than cutoff will be catagoraized as low confidence bad prediction",
+        help="Confience cutoff for bad predictions. Bad prediction with a confidence lower than cutoff will be categoraized as low confidence bad prediction",
     )
 
 def load_yaml(file):
@@ -185,7 +185,7 @@ def main(args):
     else:
         outname = args.outname
     
-    file_handler = logging.FileHandler(filename=args.outdir/f'{outname}.catagorize.log'.strip('.'))
+    file_handler = logging.FileHandler(filename=args.outdir/f'{outname}.categorize.log'.strip('.'))
     file_handler.setFormatter(logging.root.handlers[0].formatter)
     logger.addHandler(file_handler)
     
@@ -206,66 +206,66 @@ def main(args):
     total_cat = len(DEFAULT_LABEL_NAMES)
     cat_num = [len(cat) for cat in DEFAULT_LABEL_NAMES]
     cat_idx_to_idx = [list(range(sum(cat_num[:cat_idx]),sum(cat_num[:cat_idx+1]))) for cat_idx in range(len(cat_num))]
-    cat_good_pred = CATAGORY_GOOD_PREDICTIONS
+    cat_good_pred = CATEGORY_GOOD_PREDICTIONS
 
     mic_list = [str(mic_path) for mic_path in inference_result['mic_list']]
-    mic_catagory = {cata:[[],[]] for cata in CATAGORY_ALL}
+    mic_category = {cate:[[],[]] for cate in CATEGORY_ALL}
     for mic_idx in range(len(mic_list)):
         cat_pred_is_good = [inference_result['combined_preds'][0][mic_idx][cat_idx].item() in cat_good_pred[cat_idx] for cat_idx in range(total_cat)]
         if all(cat_pred_is_good):
             pred_conf = [sum(get_pred_conf(inference_result, mic_idx, cat_idx, pred_idx, cat_idx_to_idx) for pred_idx in cat_good_pred[cat_idx]) 
                          for cat_idx in range(total_cat)]
-            mic_catagory['good'][int(any(conf<args.gc for conf in pred_conf))].append(mic_list[mic_idx])
+            mic_category['good'][int(any(conf<args.gc for conf in pred_conf))].append(mic_list[mic_idx])
         elif cat_pred_is_good.count(False)==1:
             bad_cat_idx = cat_pred_is_good.index(False)
             pred_conf = sum(get_pred_conf(inference_result, mic_idx, bad_cat_idx, pred_idx, cat_idx_to_idx) 
                             for pred_idx in range(cat_num[bad_cat_idx]) if pred_idx not in cat_good_pred[bad_cat_idx])
-            mic_catagory['bad_single'][int(pred_conf<args.bc)].append(mic_list[mic_idx])
+            mic_category['bad_single'][int(pred_conf<args.bc)].append(mic_list[mic_idx])
             if bad_cat_idx == 0:
-                mic_catagory['bad_film'][int(pred_conf<args.bc)].append(mic_list[mic_idx])
+                mic_category['bad_film'][int(pred_conf<args.bc)].append(mic_list[mic_idx])
             elif bad_cat_idx == 1:
-                mic_catagory['bad_drift'][int(pred_conf<args.bc)].append(mic_list[mic_idx])
+                mic_category['bad_drift'][int(pred_conf<args.bc)].append(mic_list[mic_idx])
             elif bad_cat_idx == 2:
                 if inference_result['combined_preds'][0][mic_idx][bad_cat_idx].item() == 1:
-                    mic_catagory['bad_minor_crystalline'][int(pred_conf<args.bc)].append(mic_list[mic_idx])
+                    mic_category['bad_minor_crystalline'][int(pred_conf<args.bc)].append(mic_list[mic_idx])
                 else:
                     pred_conf = get_pred_conf(inference_result, mic_idx, bad_cat_idx, 2, cat_idx_to_idx)
-                    mic_catagory['bad_major_crystalline'][int(pred_conf<args.bc)].append(mic_list[mic_idx])
+                    mic_category['bad_major_crystalline'][int(pred_conf<args.bc)].append(mic_list[mic_idx])
             elif bad_cat_idx == 3:
-                mic_catagory['bad_contamination'][int(pred_conf<args.bc)].append(mic_list[mic_idx])
+                mic_category['bad_contamination'][int(pred_conf<args.bc)].append(mic_list[mic_idx])
         else:
-            mic_catagory['bad_multiple'][0].append(mic_list[mic_idx])
+            mic_category['bad_multiple'][0].append(mic_list[mic_idx])
     
     if args.sb:
-        catagory_to_write = CATAGORY_ALL
-        logger.info("Writing all four singly bad prediciton catagories")
+        category_to_write = CATEGORY_ALL
+        logger.info("Writing all four singly bad prediciton categories")
     else:
-        catagory_to_write = CATAGORY_DEFAULT
+        category_to_write = CATEGORY_DEFAULT
     
     if args.sc:
-        logger.info("Splitting catagories based on confidence scores")
+        logger.info("Splitting categories based on confidence scores")
         logger.info(f"Good prediction high confidence cutoff is {args.gc}")
         logger.info(f"Bad prediction high confidence cutoff is {args.bc}")
     
     conf_split_names = CONF_SPLIT_NAMES
     
-    logger.info("Number of micrographs in catagories:")
+    logger.info("Number of micrographs in categories:")
     line_size = 40
-    for catagory in catagory_to_write:
-        if catagory == 'bad_multiple' or not args.sc:
-            all_mic_this_catagory = sum(mic_catagory[catagory],[])
-            catagory_len = len(all_mic_this_catagory)
-            logger.info(f"{catagory}{'.'*(max(0,line_size-len(catagory)))}{catagory_len}")
-            if catagory_len > 0:
-                file_writer(args.out_type.lower(),args.outdir/f'{outname}_{catagory}'.strip('_'),all_mic_this_catagory,
+    for category in category_to_write:
+        if category == 'bad_multiple' or not args.sc:
+            all_mic_this_category = sum(mic_category[category],[])
+            category_len = len(all_mic_this_category)
+            logger.info(f"{category}{'.'*(max(0,line_size-len(category)))}{category_len}")
+            if category_len > 0:
+                file_writer(args.out_type.lower(),args.outdir/f'{outname}_{category}'.strip('_'),all_mic_this_category,
                             ori_star,ori_cs,ori_ptcs,ori_csg)
         else:
-            for split_idx in range(len(mic_catagory[catagory])):
-                catagory_split_len = len(mic_catagory[catagory][split_idx])
-                catagory_split_name = f'{catagory}_{conf_split_names[split_idx]}'
-                logger.info(f"{catagory_split_name}{'.'*(max(0,line_size-len(catagory_split_name)))}{catagory_split_len}")
-                if catagory_split_len > 0:
-                    file_writer(args.out_type.lower(),args.outdir/f'{outname}_{catagory_split_name}'.strip('_'),mic_catagory[catagory][split_idx],
+            for split_idx in range(len(mic_category[category])):
+                category_split_len = len(mic_category[category][split_idx])
+                category_split_name = f'{category}_{conf_split_names[split_idx]}'
+                logger.info(f"{category_split_name}{'.'*(max(0,line_size-len(category_split_name)))}{category_split_len}")
+                if category_split_len > 0:
+                    file_writer(args.out_type.lower(),args.outdir/f'{outname}_{category_split_name}'.strip('_'),mic_category[category][split_idx],
                                 ori_star,ori_cs,ori_ptcs,ori_csg)
 
     logger.info('All done')

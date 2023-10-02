@@ -75,12 +75,12 @@ Details on arguments used above:
 
 Output containing prediction confidence scores will be saved as a dictionary in a pkl file.
 
-### Catagorize micrographs
+### Categorize micrographs
 
-After inference, micrographs can be split into multiple catagories based on inference results. Output format can be one of the following: plain text list files, star files, or cs files. For outputing star and cs files, the original star file, or the original cs, passthrough cs, and csg files need to be provided. Example for catagorizing and outputing cs files:
+After inference, micrographs can be split into multiple categories based on inference results. Output format can be one of the following: plain text list files, star files, or cs files. For outputing star and cs files, the original star file, or the original cs, passthrough cs, and csg files need to be provided. Example for categorizing and outputing cs files:
 
 ```
-miffi catagorize -t cs -i path/to/inference/result --cs path/to/original/csfile \
+miffi categorize -t cs -i path/to/inference/result --cs path/to/original/csfile \
                  --ptcs path/to/original/passthrough/csfile --csg path/to/original/csgfile \
                  --sb --sc
 ```
@@ -90,10 +90,10 @@ Details on arguments used above:
 - `-t` Type of the output, can be one of the following: `list`, `star`, `cs`.
 - `-i` Path to the inference result file.
 - `--cs` `--ptcs` `--csg` Path to the original cs, passthrough cs, and csg files, which are necessary for outputting cs files. If no passthrough cs file is available (e.g. import jobs), main cs file can be used for both cs and passthrough cs input. To output star files, path to the original star file needs to be provided through `--star`.
-- `--sb` Split all singly bad micrographs into individual catagories. If this argument is not used, only film and minor crystalline catagories will be written.
-- `--sc` Split all catagories into high and low confidence based on a cutoff value. Default confidence cutoff is 0.7, but can be configured through `--gc` for good predictions and `--bc` for bad predictions.
+- `--sb` Split all singly bad micrographs into individual categories. If this argument is not used, only film and minor crystalline categories will be written.
+- `--sc` Split all categories into high and low confidence based on a cutoff value. Default confidence cutoff is 0.7, but can be configured through `--gc` for good predictions and `--bc` for bad predictions.
 
-To load output cs files into cryosparc, use "Import Result Group" job and input the output csg file of the corresponding catagory.
+To load output cs files into cryosparc, use "Import Result Group" job and input the output csg file of the corresponding category.
 
 ### Write png files for micrographs
 

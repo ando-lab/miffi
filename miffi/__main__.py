@@ -12,13 +12,13 @@ def main():
         '--version', action='version', version=f"miffi version: {miffi.__version__}"
     )
     
-    import miffi.catagorize
+    import miffi.categorize
     import miffi.download
     import miffi.inference
     import miffi.write_png
     
     modules = [
-        miffi.catagorize,
+        miffi.categorize,
         miffi.download,
         miffi.inference,
         miffi.write_png,
