@@ -169,7 +169,7 @@ def main(args):
     
     logger.info(f"Start writing png files with {args.num_process} processes")
     with Pool(processes=args.num_process) as pool:
-        result = list(tqdm(pool.imap(write_png_star, write_png_inputs), total=len(write_png_inputs), unit='mic'))
+        result = list(tqdm(pool.imap(write_png_star, write_png_inputs), total=len(write_png_inputs), unit='mic', smoothing=0))
     
     logger.info("All done")
 

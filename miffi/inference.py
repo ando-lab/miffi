@@ -204,7 +204,7 @@ def inference_mic(model, dataloader, label_names, device, num_mic, batch_size):
     mic_outputs = []
     mic_preds = []
 
-    with tqdm(total=num_mic, unit='mic') as pbar:
+    with tqdm(total=num_mic, unit='mic', smoothing=0) as pbar:
         for num_batch, batch in enumerate(dataloader):
             inputs = [batch_i.to(device) for batch_i in batch]
             

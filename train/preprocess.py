@@ -183,7 +183,7 @@ def main(args):
 
     logger.info(f"Start preprocessing with {args.num_process} processes")
     with Pool(processes=args.num_process) as pool:
-        result = list(tqdm(pool.imap(preprocess_mic_star, preprocess_inputs), total=len(preprocess_inputs), unit='mic'))
+        result = list(tqdm(pool.imap(preprocess_mic_star, preprocess_inputs), total=len(preprocess_inputs), unit='mic', smoothing=0))
     
     logger.info("All done")
 
