@@ -87,6 +87,12 @@ def add_args(parser):
         default=0.7,
         help="Confience cutoff for bad predictions. Bad prediction with a confidence lower than cutoff will be categoraized as low confidence bad prediction",
     )
+    parser.add_argument(
+        '--bci',
+        type=str,
+        default=None,
+        help="Confience cutoff for bad predictions of each individual categories. Default is using the same cutoff for all categories with the value from --bc argument. Input string should be four float numbers seperated by comma (e.g. 0.8,0.9,0.8,0.9). Order of categories is film, drift, crystalline, contamination.",
+    )
 
 def load_yaml(file):
     with open(file,'r') as f:
@@ -202,6 +208,12 @@ def main(args):
     if args.out_type.lower() == 'cs':
         assert all(file is not None for file in [ori_cs, ori_ptcs, ori_csg]), f"Outputting cs files requires providing the original .cs, passthrough .cs, and .csg files"
         assert len(ori_cs) == len(ori_ptcs), f"Provided .cs file contains different number of micrographs as comapred to the passthrough .cs file, make sure that the correct files are used"
+
+    if args.bci is not None:
+        bc_indi = list(map(float,args.bci.split(',')))
+        assert len(bc_indi) == 4, "The number of individual bad confidence cutoff input is not 4! Check your --bci input."
+    else:
+        bc_indi = list([args.bc])*4
     
     total_cat = len(DEFAULT_LABEL_NAMES)
     cat_num = [len(cat) for cat in DEFAULT_LABEL_NAMES]
@@ -222,20 +234,20 @@ def main(args):
                             for pred_idx in range(cat_num[bad_cat_idx]) if pred_idx not in cat_good_pred[bad_cat_idx])
             mic_category['bad_single'][int(pred_conf<args.bc)].append(mic_list[mic_idx])
             if bad_cat_idx == 0:
-                mic_category['bad_film'][int(pred_conf<args.bc)].append(mic_list[mic_idx])
+                mic_category['bad_film'][int(pred_conf<bc_indi[bad_cat_idx])].append(mic_list[mic_idx])
             elif bad_cat_idx == 1:
-                mic_category['bad_drift'][int(pred_conf<args.bc)].append(mic_list[mic_idx])
+                mic_category['bad_drift'][int(pred_conf<bc_indi[bad_cat_idx])].append(mic_list[mic_idx])
             elif bad_cat_idx == 2:
                 if inference_result['combined_preds'][0][mic_idx][bad_cat_idx].item() == 1:
-                    mic_category['bad_minor_crystalline'][int(pred_conf<args.bc)].append(mic_list[mic_idx])
+                    mic_category['bad_minor_crystalline'][int(pred_conf<bc_indi[bad_cat_idx])].append(mic_list[mic_idx])
                 else:
                     pred_conf = get_pred_conf(inference_result, mic_idx, bad_cat_idx, 2, cat_idx_to_idx)
-                    mic_category['bad_major_crystalline'][int(pred_conf<args.bc)].append(mic_list[mic_idx])
+                    mic_category['bad_major_crystalline'][int(pred_conf<bc_indi[bad_cat_idx])].append(mic_list[mic_idx])
             elif bad_cat_idx == 3:
-                mic_category['bad_contamination'][int(pred_conf<args.bc)].append(mic_list[mic_idx])
+                mic_category['bad_contamination'][int(pred_conf<bc_indi[bad_cat_idx])].append(mic_list[mic_idx])
         else:
             mic_category['bad_multiple'][0].append(mic_list[mic_idx])
-    
+
     if args.sb:
         category_to_write = CATEGORY_ALL
         logger.info("Writing all four singly bad prediciton categories")
@@ -246,6 +258,8 @@ def main(args):
         logger.info("Splitting categories based on confidence scores")
         logger.info(f"Good prediction high confidence cutoff is {args.gc}")
         logger.info(f"Bad prediction high confidence cutoff is {args.bc}")
+        if args.bci is not None:
+            logger.info(f"Bad prediction high confidence cutoff for each individual category is {' '.join([str(conf) for conf in bc_indi])}")
     
     conf_split_names = CONF_SPLIT_NAMES
     

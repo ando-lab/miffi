@@ -91,7 +91,7 @@ Details on arguments used above:
 - `-i` Path to the inference result file.
 - `--cs` `--ptcs` `--csg` Path to the original cs, passthrough cs, and csg files, which are necessary for outputting cs files. If no passthrough cs file is available (e.g. import jobs), main cs file can be used for both cs and passthrough cs input. To output star files, path to the original star file needs to be provided through `--star`.
 - `--sb` Split all singly bad micrographs into individual categories. If this argument is not used, only film and minor crystalline categories will be written.
-- `--sc` Split all categories into high and low confidence based on a cutoff value. Default confidence cutoff is 0.7, but can be configured through `--gc` for good predictions and `--bc` for bad predictions.
+- `--sc` Split all categories into high and low confidence based on a cutoff value. Default confidence cutoff is 0.7, but can be configured through `--gc` for good predictions and `--bc` for bad predictions. Argument `--bci` can be used to set confidence cutoff for bad predictions of each category individually.
 
 To load output cs files into cryosparc, use "Import Result Group" job and input the output csg file of the corresponding category.
 
