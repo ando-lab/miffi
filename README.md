@@ -25,7 +25,7 @@ conda install "pytorch>=1.13.1" torchvision cudatoolkit=11.7 -c pytorch -c nvidi
 
 Note that full miffi models were generated with TorchScript in pytorch version 1.13.1, which may not work in older pytorch versions. However, state dicts may be used instead, or could be converted to full models using older pytorch versions.
 
-Obtain source code for miffi using git clone (download zip from GitHub will lead to issue due to missing .git metadata):
+Obtain source code for miffi using `git clone` (download zip from GitHub will lead to issue due to missing .git metadata):
 
 ```
 git clone https://github.com/ando-lab/miffi.git
