@@ -50,7 +50,7 @@ To download all available full models, use `--all` argument. A specific model ca
 - `miffi_no_ps_v1` - Model trained with finetuning but without power spectrum input. May be useful for filtering micrographs with pixel sizes larger than 1.5 Å.
 - `miffi_no_pretrain_no_ps_v1` - Model trained without finetuning or power spectrum input. (not recommended for anything, for validation purpose only)
 
-### Inference micrographs
+### Perform inference on micrographs
 
 Micrograph input can be provided as folder and wildcard to match (`--micdir micrograph_dir -w wildcard`), or can be extracted from a file (a star file, a cryosparc cs file, a plain text list, or a pkl file containing a list). Example for inferencing micrographs from a cs file:
 
