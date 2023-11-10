@@ -232,7 +232,7 @@ def main(args):
             bad_cat_idx = cat_pred_is_good.index(False)
             pred_conf = sum(get_pred_conf(inference_result, mic_idx, bad_cat_idx, pred_idx, cat_idx_to_idx) 
                             for pred_idx in range(cat_num[bad_cat_idx]) if pred_idx not in cat_good_pred[bad_cat_idx])
-            mic_category['bad_single'][int(pred_conf<args.bc)].append(mic_list[mic_idx])
+            mic_category['bad_single'][int(pred_conf<bc_indi[bad_cat_idx])].append(mic_list[mic_idx])
             if bad_cat_idx == 0:
                 mic_category['bad_film'][int(pred_conf<bc_indi[bad_cat_idx])].append(mic_list[mic_idx])
             elif bad_cat_idx == 1:
@@ -257,8 +257,9 @@ def main(args):
     if args.sc:
         logger.info("Splitting categories based on confidence scores")
         logger.info(f"Good prediction high confidence cutoff is {args.gc}")
-        logger.info(f"Bad prediction high confidence cutoff is {args.bc}")
-        if args.bci is not None:
+        if args.bci is None:
+            logger.info(f"Bad prediction high confidence cutoff is {args.bc}")
+        else:
             logger.info(f"Bad prediction high confidence cutoff for each individual category is {' '.join([str(conf) for conf in bc_indi])}")
     
     conf_split_names = CONF_SPLIT_NAMES
