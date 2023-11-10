@@ -30,7 +30,7 @@ cd miffi
 pip install .
 ```
 
-If you need to install pytorch with a lower CUDA version due to compatibility issue with the GPU driver, follow the instruction on pytorch website (https://pytorch.org/get-started/locally/) and install appropriate versions of pytorch and CUDA using conda or pip before doing `pip install .`. Note that full miffi models were generated with TorchScript in pytorch version 1.13.1, which may not work in older pytorch versions. However, state dicts may be used instead, or could be converted to full models using older pytorch versions.
+If you need to install pytorch with a lower CUDA version due to compatibility issue with your GPU driver, follow the instruction on pytorch website (https://pytorch.org/get-started/locally/) and install appropriate versions of pytorch and CUDA using conda or pip before doing `pip install .`. Note that full miffi models were generated with TorchScript in pytorch version 1.13.1, which may not work in older pytorch versions. However, state dicts may be used instead, or could be converted to full models using older pytorch versions.
 
 ## Usage
 
@@ -62,7 +62,7 @@ miffi inference -f path/to/csfile -d path/to/data/dir --outname output_name \
 Details on arguments used above:
 
 - `-f` Path to the file containing input micrograph list.
-- `-d` Path to the data directory. This is often needed when micrograph path in the file is not absolute path. For star and cs files, this is usually the path to the root of the project directory.
+- `-d` Path to the data directory, which will be prepended to the micrograph path found in the input file. This is needed when micrograph path in the file is not absolute path. For star and cs files, this is usually the path to the root directory of the processing project.
 - `--outname` Name to be prepended to the output result file.
 - `-g` GPU id to use for inference.
 - `-m` Path to the directory containing full model files.
