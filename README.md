@@ -17,15 +17,7 @@ conda activate miffi
 
 ### Install from local copy
 
-Install pytorch and torchvision compiled with appropriate cudatoolkit version for your GPU. The supported CUDA version for your GPU/driver can usually be found with `nvidia-smi` (11.7 in this case).
-
-```
-conda install "pytorch>=1.13.1" torchvision cudatoolkit=11.7 -c pytorch -c nvidia -c conda-forge
-```
-
-Note that full miffi models were generated with TorchScript in pytorch version 1.13.1, which may not work in older pytorch versions. However, state dicts may be used instead, or could be converted to full models using older pytorch versions.
-
-Obtain source code for miffi using `git clone` (download zip from GitHub will lead to issue due to missing .git metadata):
+Obtain source code for miffi using `git clone` (downloading zip from GitHub will lead to issue due to missing .git metadata):
 
 ```
 git clone https://github.com/ando-lab/miffi.git
@@ -37,6 +29,8 @@ Then change directory into the source code folder and install using pip:
 cd miffi
 pip install .
 ```
+
+If pytorch with a lower version of CUDA is needed, follow the instruction on pytorch website (https://pytorch.org/get-started/locally/) and install appropriate versions of pytorch and CUDA before doing `pip install .`. Note that full miffi models were generated with TorchScript in pytorch version 1.13.1, which may not work in older pytorch versions. However, state dicts may be used instead, or could be converted to full models using older pytorch versions.
 
 ## Usage
 
