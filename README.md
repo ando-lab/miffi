@@ -30,7 +30,7 @@ cd miffi
 pip install .
 ```
 
-If you need to install pytorch with a lower CUDA version due to compatibility issue with your GPU driver, follow the instruction on pytorch website (https://pytorch.org/get-started/locally/) and install appropriate versions of pytorch and CUDA using conda or pip before doing `pip install .`. Note that full miffi models were generated with TorchScript in pytorch version 1.13.1, which may not work in older pytorch versions. However, state dicts may be used instead, or could be converted to full models using older pytorch versions.
+If you need to install pytorch with a lower CUDA version due to compatibility issue with your GPU driver, follow the instruction on pytorch website (https://pytorch.org/get-started/locally/) and install appropriate versions of pytorch and CUDA using conda or pip before doing `pip install .` in the above step. Note that full miffi models were generated with TorchScript in pytorch version 1.13.1, which may not work in older pytorch versions. However, state dicts may be used instead, or could be converted to full models using older pytorch versions.
 
 ## Usage
 
