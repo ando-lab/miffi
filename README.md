@@ -52,7 +52,7 @@ To download all available full models, use `--all` argument. A specific model ca
 
 ### Perform inference on micrographs
 
-Micrograph input can be provided as folder and wildcard to match (`--micdir micrograph_dir -w wildcard`), or can be extracted from a file (a star file, a cryosparc cs file, a plain text list, or a pkl file containing a list). Example for inferencing micrographs from a cs file:
+Micrograph input can be provided as folder and wildcard to match (`--micdir micrograph_dir -w wildcard`), or can be extracted from a file (a star file, a cryosparc cs file, a plain text list, or a pkl file containing a list). Example for performing inference on micrographs from a cs file:
 
 ```
 miffi inference -f path/to/csfile -d path/to/data/dir --outname output_name \
