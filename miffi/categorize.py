@@ -10,7 +10,7 @@ import starfile
 import numpy as np
 import yaml
 import torch
-from .utils import load_pkl
+from .utils import load_pkl, load_yaml
 from .parameters import DEFAULT_LABEL_NAMES, CATEGORY_DEFAULT, CATEGORY_ALL, CATEGORY_GOOD_PREDICTIONS, CONF_SPLIT_NAMES
 
 logger = logging.getLogger(__name__)
@@ -93,10 +93,6 @@ def add_args(parser):
         default=None,
         help="Confience cutoff for bad predictions of each individual categories. Default is using the same cutoff for all categories with the value from --bc argument. Input string should be four float numbers seperated by comma (e.g. 0.8,0.9,0.8,0.9). Order of categories is film, drift, crystalline, contamination.",
     )
-
-def load_yaml(file):
-    with open(file,'r') as f:
-        return yaml.safe_load(f)
 
 def write_yaml(obj,file):
     with open(file,'w+') as f:

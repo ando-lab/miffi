@@ -5,6 +5,7 @@ Utilities for miffi
 import logging
 import math
 import numpy as np
+import yaml
 import torch
 from pathlib import Path
 import pickle
@@ -60,14 +61,23 @@ def save_pkl(obj, file):
     with open(file,'wb') as f:
         pickle.dump(obj, f)
 
+def load_yaml(file):
+    with open(file,'r') as f:
+        return yaml.safe_load(f)
+
 def star_to_miclist(file):
     import starfile
     df = starfile.read(file)
     return df['micrographs']['rlnMicrographName'].tolist()
 
-def cs_to_miclist(file):
-    cs = np.load(file)
-    assert 'micrograph_blob/path' in cs.dtype.names, "'micrograph_blob/path' entry not found in the provided cs file. If you are using the main cs file, try using the passthrough cs file instead."
+def csg_to_miclist(file):
+    csg = load_yaml(file)
+    assert 'micrograph_blob' in csg['results'].keys(), "'micrograph_blob' entry not found in the provided csg file!"
+    cs_file_name = file.parent/csg['results']['micrograph_blob']['metafile'].replace('>','')
+    
+    assert cs_file_name.exists(), f"cs file {cs_file_name.name} specified in the csg file does not exist in the same directory!"
+    cs = np.load(cs_file_name)
+    assert 'micrograph_blob/path' in cs.dtype.names, f"'micrograph_blob/path' entry was not found in the cs file {cs_file_name.name} specified in the csg file!"
     return list(map(lambda x: x.decode('utf-8'), cs['micrograph_blob/path'].tolist()))
 
 def get_miclist(miclist_file, micdir, wildcard):
@@ -81,14 +91,18 @@ def get_miclist(miclist_file, micdir, wildcard):
         if micdir is not None:
             logger.warning("Using specified micrograph list file. Micrograph directory input will be ignored.")
         if miclist_file.suffix.lower() == '.star':
+            logger.info("Load micrograph list from star file")
             mic_list = star_to_miclist(miclist_file)
-        elif miclist_file.suffix.lower() == '.cs':
-            mic_list = cs_to_miclist(miclist_file)
+        elif miclist_file.suffix.lower() == '.csg':
+            logger.info("Load micrograph list from cs file specified in provided csg file")
+            mic_list = csg_to_miclist(miclist_file)
         elif is_plain_text_file(miclist_file):
+            logger.info("Load micrograph list from plain text file")
             with open(miclist_file,'r') as f:
                 mic_list = f.read().splitlines()
                 mic_list = [pathi.strip() for pathi in mic_list if pathi.strip() != '']
         else:
+            logger.info("Load input file as a pickle file containing a list")
             mic_list = load_pkl(miclist_file)
         mic_list = [Path(pathi) for pathi in mic_list]
         assert len(mic_list) > 0, "No micrograph found within the provided file"

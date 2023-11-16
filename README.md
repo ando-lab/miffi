@@ -52,17 +52,17 @@ To download all available full models, use `--all` argument. A specific model ca
 
 ### Perform inference on micrographs
 
-Micrograph input can be provided as folder and wildcard to match (`--micdir micrograph_dir -w wildcard`), or can be extracted from a file (a star file, a cryosparc cs file, a plain text list, or a pkl file containing a list). Example for performing inference on micrographs from a cs file:
+Micrograph input can be provided as folder and wildcard to match (`--micdir micrograph_dir -w wildcard`), or can be extracted from a file (a star file, a cryosparc csg file, a plain text list, or a pkl file containing a list). Example for performing inference on micrographs from a csg file:
 
 ```
-miffi inference -f path/to/csfile -d path/to/data/dir --outname output_name \
+miffi inference -f path/to/csgfile -d path/to/data/dir --outname output_name \
                 -g gpu_id_to_use -m path/to/model/dir
 ```
 
 Details on arguments used above:
 
 - `-f` Path to the file containing input micrograph list.
-- `-d` Path to the data directory, which will be prepended to the micrograph path found in the input file. This is needed when micrograph path in the file is not absolute path. For star and cs files, this is usually the path to the root directory of the processing project.
+- `-d` Path to the data directory, which will be prepended to the micrograph path found in the input file. This is needed when micrograph path in the file is not absolute path. For star and csg files, this is usually the path to the root directory of the processing project.
 - `--outname` Name to be prepended to the output result file.
 - `-g` GPU id to use for inference.
 - `-m` Path to the directory containing full model files.
