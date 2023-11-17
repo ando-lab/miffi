@@ -61,7 +61,7 @@ miffi inference -f path/to/csgfile -d path/to/data/dir --outname output_name \
 
 Details on arguments used above:
 
-- `-f` Path to the file containing input micrograph list.
+- `-f` Path to the file specifying input micrograph list (csg file in this case).
 - `-d` Path to the data directory, which will be prepended to the micrograph path found in the input file. This is needed when micrograph path in the file is not absolute path. For star and csg files, this is usually the path to the root directory of the processing project.
 - `--outname` Name to be prepended to the output result file.
 - `-g` GPU id to use for inference.
@@ -71,11 +71,10 @@ Output containing prediction confidence scores will be saved as a dictionary in 
 
 ### Categorize micrographs
 
-After inference, micrographs can be split into multiple categories based on inference results. Output format can be one of the following: plain text list files, star files, or cs files. For outputing star and cs files, the original star file, or the original cs, passthrough cs, and csg files need to be provided. Example for categorizing and outputing cs files:
+After inference, micrographs can be split into multiple categories based on inference results. Output format can be one of the following: plain text list files, star files, or cs files. To output star and cs files, the original star file or the original csg file needs to be provided. Example for categorizing and outputing cs files:
 
 ```
-miffi categorize -t cs -i path/to/inference/result --cs path/to/original/csfile \
-                 --ptcs path/to/original/passthrough/csfile --csg path/to/original/csgfile \
+miffi categorize -t cs -i path/to/inference/result --csg path/to/original/csgfile \
                  --sb --sc
 ```
 
@@ -83,7 +82,7 @@ Details on arguments used above:
 
 - `-t` Type of the output, can be one of the following: `list`, `star`, `cs`.
 - `-i` Path to the inference result file.
-- `--cs` `--ptcs` `--csg` Path to the original cs, passthrough cs, and csg files, which are necessary for outputting cs files. If no passthrough cs file is available (e.g. import jobs), main cs file can be used for both cs and passthrough cs input. To output star files, path to the original star file needs to be provided through `--star`.
+- `--csg` Path to the original csg file, which is necessary for outputting cs files. To output star files, path to the original star file needs to be provided through `--star`.
 - `--sb` Split all singly bad micrographs into individual categories. If this argument is not used, only film and minor crystalline categories will be written.
 - `--sc` Split all categories into high and low confidence based on a cutoff value. Default confidence cutoff is 0.7, but can be configured through `--gc` for good predictions and `--bc` for bad predictions. Argument `--bci` can be used to set confidence cutoff for bad predictions of each category individually.
 

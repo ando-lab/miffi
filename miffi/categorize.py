@@ -36,18 +36,6 @@ def add_args(parser):
         help="Path to the original star file, only applicable when outputting star files"
     )
     parser.add_argument(
-        '--cs',
-        type=Path,
-        default=None,
-        help="Path to the original cs file, only applicable when outputting cs files"
-    )
-    parser.add_argument(
-        '--ptcs',
-        type=Path,
-        default=None,
-        help="Path to the original passthrough cs file, only applicable when outputting cs files"
-    )
-    parser.add_argument(
         '--csg',
         type=Path,
         default=None,
@@ -106,77 +94,90 @@ def get_pred_conf(inference_result, mic_idx, cat_idx, pred_idx, cat_idx_to_idx):
     high_conf_idx = inference_result['combined_preds'][1][mic_idx][cat_idx].item()
     return inference_result['mic_pred_confidence'][high_conf_idx][mic_idx][cat_idx_to_idx[cat_idx][pred_idx]]
 
-def list_file_writer(path,cat_mic_list):
-    with open(path,'w+') as f:
-        for item in cat_mic_list:
-            f.write(f'{item}\n')
-
-def star_file_writer(path,cat_mic_list,star):
-    star_list = {}
-    for key in star:
-        if key != 'micrographs':
-            star_list[key] = star[key]
-        else:
-            star_list[key] = star[key][star[key]['rlnMicrographName'].isin(cat_mic_list)]
-    assert len(star_list['micrographs']) > 0, f"Micrograph paths are not matching to those in the star file, make sure the correct star file is used"
-    starfile.write(star_list, path.with_suffix('.star'))
-
-def cs_file_writer(path,cat_mic_list,cs,ptcs,csg):
-    num_mic = len(cat_mic_list)
-    
-    if 'micrograph_blob/path' in cs.dtype.names:
-        cs_to_match = cs
-    elif 'micrograph_blob/path' in ptcs.dtype.names:
-        cs_to_match = ptcs
-    else:
-        raise Exception("'micrograph_blob/path' entry not found in either cs file or passthrough cs file")
+def list_file_writer(items):
+    for item in items:
+        path = item[0]
+        cat_mic_list = item[1]
         
-    matching_idx = [idx for idx, pathi in enumerate(cs_to_match['micrograph_blob/path']) if pathi.decode('utf-8') in cat_mic_list]
-    assert len(matching_idx) > 0, f"Micrograph paths are not matching to those in the cs file, make sure that the correct cs files are used"
-    
-    matching_cs = cs[matching_idx]
-    matching_ptcs = ptcs[matching_idx]
-    
-    cs_outname = path.with_suffix('.cs')
-    ptcs_outname = path.with_name(f'{path.stem}_passthrough.cs')
-    csg_outname = path.with_suffix('.csg')
+        with open(path,'w+') as f:
+            for entry in cat_mic_list:
+                f.write(f'{entry}\n')
 
-    cs_fields = list(set([entry.split('/')[0] for entry in cs.dtype.names]))
-    ptcs_fields = list(set([entry.split('/')[0] for entry in ptcs.dtype.names]))
-    field_file_dict = {}
-    for field in ptcs_fields:
-        field_file_dict[field] = ptcs_outname.name
-    for field in cs_fields:
-        field_file_dict[field] = cs_outname.name
+def star_file_writer(items,star):
+    star_ori = starfile.read(star)
+    assert 'micrographs' in star_ori.keys(), "micrographs entry not found in the provided star file!"
     
-    csg_new = {}
-    csg_new['create'] = datetime.datetime.today()
-    csg_new['group'] = {'description': '',
-                        'name': path.stem,
-                        'title': path.stem.replace('_',' ').capitalize(),
-                        'type': 'exposure'}
-    csg_new['results'] = {}
-    for key in csg['results']:
-        if key in field_file_dict.keys():
+    for item in items:
+        path = item[0]
+        cat_mic_list = item[1]
+        
+        star_new = {}
+        for key in star_ori:
+            if key != 'micrographs':
+                star_new[key] = star_ori[key]
+            else:
+                star_new[key] = star_ori[key][star_ori[key]['rlnMicrographName'].isin(cat_mic_list)]
+        assert len(star_new['micrographs']) > 0, f"Micrograph paths are not matching to those in the star file, make sure that the correct star file is used"
+        starfile.write(star_new, path.with_suffix('.star'))
+
+def cs_file_writer(items,csg):
+    csg_ori = load_yaml(csg)
+    assert 'micrograph_blob' in csg_ori['results'].keys(), "'micrograph_blob' entry not found in the provided csg file!"
+    
+    cs_file_name_dict = {key:csg_ori['results'][key]['metafile'].replace('>','') for key in csg_ori['results'].keys()}
+    cs_file_name_list = list(set(list(cs_file_name_dict.values())))
+    cs_file_dict_to_list = {key:cs_file_name_list.index(cs_file_name_dict[key]) for key in cs_file_name_dict.keys()}
+    
+    cs_file_path_list = [csg.parent/entry for entry in cs_file_name_list]
+    for cs_file_path in cs_file_path_list:
+        assert cs_file_path.exists(), f"cs file {cs_file_path.name} specified in the csg file does not exist in the same directory!"
+    
+    cs_list = [np.load(cs_file_path) for cs_file_path in cs_file_path_list]
+    cs_with_mic_list_idx = cs_file_name_list.index(csg_ori['results']['micrograph_blob']['metafile'].replace('>',''))
+    cs_with_mic_list = cs_list[cs_with_mic_list_idx]
+    assert 'micrograph_blob/path' in cs_with_mic_list.dtype.names, f"'micrograph_blob/path' entry was not found in the cs file {cs_file_name_list[cs_with_mic_list_idx]} specified in the csg file!"
+
+    for item in items:
+        path = item[0]
+        cat_mic_list = item[1]
+        
+        num_mic = len(cat_mic_list)
+        
+        matching_idx = [idx for idx, pathi in enumerate(cs_with_mic_list['micrograph_blob/path']) if pathi.decode('utf-8') in cat_mic_list]
+        assert len(matching_idx) > 0, f"Micrograph paths are not matching to those in the cs file specified in csg file, make sure that the correct csg file is used"
+        
+        matching_cs_list = [cs[matching_idx] for cs in cs_list]
+        
+        csg_outname = path.with_suffix('.csg')
+        cs_outname_list = [path.with_name(f'{path.stem}_passthrough.cs') if 'passthrough' in cs_file_name 
+                           else path.with_suffix('.cs') for cs_file_name in cs_file_name_list]
+        
+        csg_new = {}
+        csg_new['create'] = datetime.datetime.today()
+        title = path.stem.replace('_',' ')
+        csg_new['group'] = {'description': csg_ori['group']['description'],
+                            'name': path.stem,
+                            'title': title[:1].upper()+title[1:],
+                            'type': csg_ori['group']['type']}
+        csg_new['results'] = {}
+        for key in csg_ori['results']:
             csg_new['results'][key] = {}
-            csg_new['results'][key]['metafile'] = f'>{field_file_dict[key]}'
+            csg_new['results'][key]['metafile'] = f'>{cs_outname_list[cs_file_dict_to_list[key]].name}'
             csg_new['results'][key]['num_items'] = num_mic
-            csg_new['results'][key]['type'] = csg['results'][key]['type']
-        else:
-            logger.warning(f"key {key} not found in either cs or ptcs files, skip writing")
-    csg_new['version'] = csg['version']
+            csg_new['results'][key]['type'] = csg_ori['results'][key]['type']
+        csg_new['version'] = csg_ori['version']
+        
+        write_yaml(csg_new,csg_outname)
+        for cs, cs_file_path in zip(matching_cs_list,cs_outname_list):
+            write_cs(cs,cs_file_path)
 
-    write_cs(matching_cs,cs_outname)
-    write_cs(matching_ptcs,ptcs_outname)
-    write_yaml(csg_new,csg_outname)
-
-def file_writer(type, path, cat_mic_list, star=None, cs=None, ptcs=None, csg=None):
+def file_writer(type, items, star=None, csg=None):
     if type == 'list':
-        list_file_writer(path,cat_mic_list)
+        list_file_writer(items)
     elif type == 'star':
-        star_file_writer(path,cat_mic_list,star)
+        star_file_writer(items,star)
     elif type == 'cs':
-        cs_file_writer(path,cat_mic_list,cs,ptcs,csg)
+        cs_file_writer(items,csg)
     else:
         raise NotImplementedError(f"file writer with type {type} is not implemented!")
 
@@ -193,18 +194,13 @@ def main(args):
     
     assert args.out_type.lower() in ['list','star','cs'], f"Unsupported output type {args.out_type}"
     logger.info(f"Writing result as {args.out_type.lower()} files")
-
-    ori_star = starfile.read(args.star) if args.star is not None else None
+    
     if args.out_type.lower() == 'star':
-        assert ori_star is not None, f"Outputting star file requires providing the original .star file"
-
-    ori_cs = np.load(args.cs) if args.cs is not None else None
-    ori_ptcs = np.load(args.ptcs) if args.ptcs is not None else None
-    ori_csg = load_yaml(args.csg) if args.csg is not None else None
+        assert args.star is not None, f"Outputting star file requires providing the original .star file"
+    
     if args.out_type.lower() == 'cs':
-        assert all(file is not None for file in [ori_cs, ori_ptcs, ori_csg]), f"Outputting cs files requires providing the original .cs, passthrough .cs, and .csg files"
-        assert len(ori_cs) == len(ori_ptcs), f"Provided .cs file contains different number of micrographs as comapred to the passthrough .cs file, make sure that the correct files are used"
-
+        assert args.csg is not None, f"Outputting cs files requires providing the original .csg file"
+    
     if args.bci is not None:
         bc_indi = list(map(float,args.bci.split(',')))
         assert len(bc_indi) == 4, "The number of individual bad confidence cutoff input is not 4! Check your --bci input."
@@ -261,6 +257,7 @@ def main(args):
     conf_split_names = CONF_SPLIT_NAMES
     
     logger.info("Number of micrographs in categories:")
+    items_to_write = []
     line_size = 40
     for category in category_to_write:
         if category == 'bad_multiple' or not args.sc:
@@ -268,17 +265,17 @@ def main(args):
             category_len = len(all_mic_this_category)
             logger.info(f"{category}{'.'*(max(0,line_size-len(category)))}{category_len}")
             if category_len > 0:
-                file_writer(args.out_type.lower(),args.outdir/f'{outname}_{category}'.strip('_'),all_mic_this_category,
-                            ori_star,ori_cs,ori_ptcs,ori_csg)
+                items_to_write.append([args.outdir/f'{outname}_{category}'.strip('_'),all_mic_this_category])
         else:
             for split_idx in range(len(mic_category[category])):
                 category_split_len = len(mic_category[category][split_idx])
                 category_split_name = f'{category}_{conf_split_names[split_idx]}'
                 logger.info(f"{category_split_name}{'.'*(max(0,line_size-len(category_split_name)))}{category_split_len}")
                 if category_split_len > 0:
-                    file_writer(args.out_type.lower(),args.outdir/f'{outname}_{category_split_name}'.strip('_'),mic_category[category][split_idx],
-                                ori_star,ori_cs,ori_ptcs,ori_csg)
-
+                    items_to_write.append([args.outdir/f'{outname}_{category_split_name}'.strip('_'),mic_category[category][split_idx]])
+    
+    file_writer(args.out_type.lower(),items_to_write,args.star,args.csg)
+    
     logger.info('All done')
 
 if __name__ == '__main__':
