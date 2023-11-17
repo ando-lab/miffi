@@ -20,7 +20,7 @@ def add_args(parser):
         '-f',
         '--miclist-file',
         type=Path,
-        help="Path to file that contains the micrograph list. If file extension is .star, micrographs will be parsed from the star file. If file extension is .cs, microgrphs will be obtained from the numpy array stored in the cs file. If containing plain text encoded by utf-8, micrograph names will be parsed from each line in the file. Else, pickle will be used to load object from the file which is assumed to be a list."
+        help="Path to file that contains the micrograph list. If file extension is .star, micrograph list will be parsed from the star file. If file extension is .csg, microgrph list will be obtained from the cs file specified in the csg file. If containing plain text encoded by utf-8, micrograph names will be parsed from each line in the file. Else, pickle will be used to load object from the file which is assumed to be a list."
     )
     parser.add_argument(
         '-d',
