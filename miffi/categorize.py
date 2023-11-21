@@ -149,8 +149,7 @@ def cs_file_writer(items,csg):
         matching_cs_list = [cs[matching_idx] for cs in cs_list]
         
         csg_outname = path.with_suffix('.csg')
-        cs_outname_list = [path.with_name(f'{path.stem}_passthrough.cs') if 'passthrough' in cs_file_name 
-                           else path.with_suffix('.cs') for cs_file_name in cs_file_name_list]
+        cs_outname_list = [path.with_name(f'{path.stem}_{cs_idx}.cs') for cs_idx, cs_file_name in enumerate(cs_file_name_list)]
         
         csg_new = {}
         csg_new['create'] = datetime.datetime.today()
