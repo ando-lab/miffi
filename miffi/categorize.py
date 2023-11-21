@@ -10,7 +10,7 @@ import starfile
 import numpy as np
 import yaml
 import torch
-from .utils import load_pkl, load_yaml
+from .utils import load_pkl, save_pkl, load_yaml
 from .parameters import DEFAULT_LABEL_NAMES, CATEGORY_DEFAULT, CATEGORY_ALL, CATEGORY_GOOD_PREDICTIONS, CONF_SPLIT_NAMES
 
 logger = logging.getLogger(__name__)
@@ -258,6 +258,7 @@ def main(args):
     
     logger.info("Number of micrographs in categories:")
     items_to_write = []
+    category_dict = {}
     line_size = 40
     for category in category_to_write:
         if category == 'bad_multiple' or not args.sc:
@@ -266,6 +267,7 @@ def main(args):
             logger.info(f"{category}{'.'*(max(0,line_size-len(category)))}{category_len}")
             if category_len > 0:
                 items_to_write.append([args.outdir/f'{outname}_{category}'.strip('_'),all_mic_this_category])
+                category_dict[category] = all_mic_this_category
         else:
             for split_idx in range(len(mic_category[category])):
                 category_split_len = len(mic_category[category][split_idx])
@@ -273,8 +275,11 @@ def main(args):
                 logger.info(f"{category_split_name}{'.'*(max(0,line_size-len(category_split_name)))}{category_split_len}")
                 if category_split_len > 0:
                     items_to_write.append([args.outdir/f'{outname}_{category_split_name}'.strip('_'),mic_category[category][split_idx]])
+                    category_dict[category_split_name] = mic_category[category][split_idx]
     
     file_writer(args.out_type.lower(),items_to_write,args.star,args.csg)
+    
+    save_pkl(category_dict, args.outdir/f'{outname}_category_dict.pkl')
     
     logger.info('All done')
 
