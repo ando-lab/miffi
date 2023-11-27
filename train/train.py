@@ -9,6 +9,7 @@ import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import timm
+from utils import read_path
 from datasets import MicDataset, mic_transforms
 from convnext_utils import LayerDecayValueAssigner, create_optimizer, cosine_scheduler
 import time
@@ -23,26 +24,26 @@ def add_args(parser):
     parser.add_argument(
         '-t',
         '--label-dict-train',
-        type=Path,
+        type=read_path,
         help="Path to the label dictionary for training data"
     )
     parser.add_argument(
         '-v',
         '--label-dict-val',
-        type=Path,
+        type=read_path,
         help="Path to the label dictionary for validation data"
     )
     parser.add_argument(
         '-d',
         '--datadir',
-        type=Path,
+        type=read_path,
         default=Path.cwd(),
         help="Path to directory containing data (will be prepended to path obtained from label dict)"
     )
     parser.add_argument(
         '-o',
         '--outdir',
-        type=Path,
+        type=read_path,
         default=Path.cwd(),
         help="Path to directory for outputting training results",
     )
@@ -118,13 +119,13 @@ def add_args(parser):
     )
     parser.add_argument(
         '--label-names',
-        type=Path,
+        type=read_path,
         default=None,
         help="Path to a pkl file that contains the list of label names",
     )
     parser.add_argument(
         '--sd',
-        type=Path,
+        type=read_path,
         default=None,
         help="Path to a state dict file for initializing ConvNeXt-Small model",
     )

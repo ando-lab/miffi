@@ -10,7 +10,7 @@ import starfile
 import numpy as np
 import yaml
 import torch
-from .utils import load_pkl, save_pkl, load_yaml
+from .utils import read_path, load_pkl, save_pkl, load_yaml
 from .parameters import DEFAULT_LABEL_NAMES, CATEGORY_DEFAULT, CATEGORY_ALL, CATEGORY_GOOD_PREDICTIONS, CONF_SPLIT_NAMES
 
 logger = logging.getLogger(__name__)
@@ -25,26 +25,26 @@ def add_args(parser):
     parser.add_argument(
         '-i',
         '--inference-result',
-        type=Path,
+        type=read_path,
         required=True,
         help="Path to the inference result file"
     )
     parser.add_argument(
         '--star',
-        type=Path,
+        type=read_path,
         default=None,
         help="Path to the original star file, only applicable when outputting star files"
     )
     parser.add_argument(
         '--csg',
-        type=Path,
+        type=read_path,
         default=None,
         help="Path to the original csg file, only applicable when outputting cs files"
     )
     parser.add_argument(
         '-o',
         '--outdir',
-        type=Path,
+        type=read_path,
         default=Path.cwd(),
         help="Path to the directory for outputting files",
     )

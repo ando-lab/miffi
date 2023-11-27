@@ -13,6 +13,9 @@ import mrcfile
 
 logger = logging.getLogger(__name__)
 
+def read_path(path_string):
+    return Path(path_string.strip('"\''))
+
 def rescale(im, m1, s1, m2 = 0, s2 = 1):
     im_new = m2 + (im - m1) * s2 / s1
     return im_new
