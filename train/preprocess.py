@@ -11,7 +11,7 @@ import torch
 import matplotlib
 from matplotlib import pyplot as plt
 from multiprocessing import Pool
-from utils import read_path, rescale, iter_mean_std, clip, crop_in_fourier, fft_to_ps
+from utils import rescale, iter_mean_std, clip, crop_in_fourier, fft_to_ps
 from tqdm import tqdm
 
 logging.basicConfig(format='(%(levelname)s|%(filename)s|%(asctime)s) %(message)s', level=logging.INFO, 
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 def add_args(parser):
     parser.add_argument(
         'micdir',
-        type=read_path,
+        type=Path,
         help="Path to directory containing input micrographs"
     )
     parser.add_argument(
@@ -33,7 +33,7 @@ def add_args(parser):
     parser.add_argument(
         '-o',
         '--outdir',
-        type=read_path,
+        type=Path,
         default=Path.cwd(),
         help="Path to directory for outputting preprocessed micrographs",
     )

@@ -11,7 +11,7 @@ import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from .datasets import MicDataset, mic_transforms
-from .utils import read_path, load_pkl, save_pkl, get_miclist, get_preprocess_param, combine_preds
+from .utils import load_pkl, save_pkl, get_miclist, get_preprocess_param, combine_preds
 import time
 from time import localtime, strftime
 from .parameters import DEFAULT_LABEL_NAMES, AVAILABLE_MODELS
@@ -23,19 +23,19 @@ def add_args(parser):
     parser.add_argument(
         '-f',
         '--miclist-file',
-        type=read_path,
+        type=Path,
         help="Path to file that contains the micrograph list. If file extension is .star, micrograph list will be parsed from the star file. If file extension is .csg, microgrph list will be obtained from the cs file specified in the csg file. If containing plain text encoded by utf-8, micrograph names will be parsed from each line in the file. Else, pickle will be used to load object from the file which is assumed to be a list."
     )
     parser.add_argument(
         '-d',
         '--datapath',
-        type=read_path,
+        type=Path,
         default=Path.cwd(),
         help="Path to be prepended to those obtained from micrograph list file"
     )
     parser.add_argument(
         '--micdir',
-        type=read_path,
+        type=Path,
         help="Path to directory containing input micrographs. Used for specifying micrographs with file name matching. This parameter will only be used if no micrograph list file is specified."
     )
     parser.add_argument(
@@ -47,7 +47,7 @@ def add_args(parser):
     parser.add_argument(
         '-o',
         '--outdir',
-        type=read_path,
+        type=Path,
         default=Path.cwd(),
         help="Path to directory for outputting the inference result file",
     )
@@ -105,7 +105,7 @@ def add_args(parser):
     parser.add_argument(
         '-m',
         '--model-folder',
-        type=read_path,
+        type=Path,
         help="Path to the folder containing miffi models. This input is ignored if the path to a model file is provided.",
     )
     parser.add_argument(
@@ -115,13 +115,13 @@ def add_args(parser):
     )
     parser.add_argument(
         '--fm',
-        type=read_path,
+        type=Path,
         default=None,
         help="Path to a full model in TorchScript format to be used in inference. Overwrites miffi model inputs.",
     )
     parser.add_argument(
         '--sd',
-        type=read_path,
+        type=Path,
         default=None,
         help="Path to a state dict to be loaded into a ConvNext-Small model to be used in inference. Overwrites miffi model inputs and full model inputs.",
     )
@@ -132,7 +132,7 @@ def add_args(parser):
     )
     parser.add_argument(
         '--label-names',
-        type=read_path,
+        type=Path,
         default=None,
         help="Path to a pkl file that contains the list of label names, which needs to be consistent with the model used",
     )

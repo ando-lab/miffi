@@ -12,7 +12,6 @@ import hashlib
 import json
 import time
 import datetime
-from .utils import read_path
 from .parameters import AVAILABLE_MODELS, RECORD_URL, DEFAULT_DOWNLOAD
 
 logger = logging.getLogger(__name__)
@@ -21,7 +20,7 @@ def add_args(parser):
     parser.add_argument(
         '-d',
         '--download-dir',
-        type=read_path,
+        type=Path,
         default=Path.cwd(),
         help="Path to the directory for downloading model files"
     )

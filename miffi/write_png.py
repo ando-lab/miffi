@@ -9,7 +9,7 @@ import torch
 import matplotlib
 from matplotlib import pyplot as plt
 from .datasets import MicDataset, mic_transforms
-from .utils import read_path, iter_mean_std, rescale, clip, crop_in_fourier, fft_to_ps, get_miclist, get_preprocess_param
+from .utils import iter_mean_std, rescale, clip, crop_in_fourier, fft_to_ps, get_miclist, get_preprocess_param
 from multiprocessing import Pool
 from tqdm import tqdm
 
@@ -19,19 +19,19 @@ def add_args(parser):
     parser.add_argument(
         '-f',
         '--miclist-file',
-        type=read_path,
+        type=Path,
         help="Path to file that contains the micrograph list. If file extension is .star, micrograph list will be parsed from the star file. If file extension is .csg, microgrph list will be obtained from the cs file specified in the csg file. If containing plain text encoded by utf-8, micrograph names will be parsed from each line in the file. Else, pickle will be used to load object from the file which is assumed to be a list."
     )
     parser.add_argument(
         '-d',
         '--datapath',
-        type=read_path,
+        type=Path,
         default=Path.cwd(),
         help="Path to be prepended to those obtained from micrograph list file"
     )
     parser.add_argument(
         '--micdir',
-        type=read_path,
+        type=Path,
         help="Path to directory containing input micrographs. Used for specifying micrographs with file name matching. This parameter will only be used if no micrograph list file is specified."
     )
     parser.add_argument(
@@ -43,7 +43,7 @@ def add_args(parser):
     parser.add_argument(
         '-o',
         '--outdir',
-        type=read_path,
+        type=Path,
         default=Path.cwd(),
         help="Path to directory for outputting png files",
     )
