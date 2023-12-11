@@ -1,14 +1,16 @@
-# `miffi: cryo-EM micrograph filtering utilizing Fourier space information`
+# `Miffi: Cryo-EM micrograph filtering utilizing Fourier space information`
+
+BioRxiv: https://doi.org/10.1101/2023.12.08.570849
 
 ## Repository Contents
 
-- `miffi/` - Main miffi package
-- `train/` - Model training scripts (independent from miffi package)
+- `miffi/` - Main Miffi package
+- `train/` - Model training scripts (independent from Miffi package)
 - `empiar_test_set_labels/` - Labels for EMPIAR test sets
 
 ## Installation
 
-First create a conda virtual enviroment for miffi:
+First create a conda virtual enviroment for Miffi:
 
 ```
 conda create -n miffi python=3.9
@@ -17,7 +19,7 @@ conda activate miffi
 
 ### Install from local copy
 
-Obtain source code for miffi using `git clone` (downloading zip from GitHub will lead to issue due to missing .git metadata):
+Obtain source code for Miffi using `git clone` (downloading zip from GitHub will lead to issue due to missing .git metadata):
 
 ```
 git clone https://github.com/ando-lab/miffi.git
@@ -30,15 +32,15 @@ cd miffi
 pip install .
 ```
 
-If you need to install pytorch with a lower CUDA version due to compatibility issue with your GPU driver, follow the instruction on pytorch website (https://pytorch.org/get-started/locally/) and install appropriate versions of pytorch and CUDA using conda or pip before doing `pip install .` in the step above. Note that full miffi models were generated with TorchScript in pytorch version 1.13.1, which may not work in older pytorch versions. However, state dicts may be used instead, or could be converted to full models using older pytorch versions.
+If you need to install Pytorch with a lower CUDA version due to compatibility issue with your GPU driver, follow the instruction on Pytorch website (https://pytorch.org/get-started/locally/) and install appropriate versions of Pytorch and CUDA using conda or pip before doing `pip install .` in the step above. Note that full Miffi models were generated with TorchScript in Pytorch version 1.13.1, which may not work in older Pytorch versions. However, state dicts may be used instead, or could be converted to full models using older Pytorch versions.
 
 ## Usage
 
-The following sections outline basic usage of the miffi package. To see all available arguments for different commands, refer to `--help`.
+The following sections outline basic usage of the Miffi package. To see all available arguments for different commands, refer to `--help`.
 
-### Download miffi models
+### Download Miffi models
 
-Full miffi models and state dicts are hosted on Zenodo (https://doi.org/10.5281/zenodo.8342009). Programatic download for full models is available as part of the miffi package. To download the current default model:
+Full Miffi models and state dicts are hosted on Zenodo (https://doi.org/10.5281/zenodo.8342009). Programatic download for full models is available as part of the Miffi package. To download the current default model:
 
 ```
 miffi download -d path/to/download/dir
