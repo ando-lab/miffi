@@ -123,7 +123,12 @@ def add_args(parser):
         '--sd',
         type=Path,
         default=None,
-        help="Path to a state dict to be loaded into a ConvNext-Small model to be used in inference. Overwrites miffi model inputs and full model inputs.",
+        help="Path to a state dict to be loaded into the model. Overwrites miffi model inputs and full model inputs.",
+    )
+    parser.add_argument(
+        '--model-to-load',
+        default='convnext_small',
+        help="Model to obtain from timm to load the state dict into",
     )
     parser.add_argument(
         '--no-ps',
@@ -178,15 +183,15 @@ def outputs_to_confidence(mic_outputs, label_names):
                 confs[split_idx,mic_idx,sum(cat_num[:cat_idx]):sum(cat_num[:cat_idx+1])] = F.softmax(mic_outputs[split_idx,mic_idx,sum(cat_num[:cat_idx]):sum(cat_num[:cat_idx+1])], dim=0)
     return confs
 
-def load_model(model_folder, model_name, fm, sd, no_ps, label_names, device):
+def load_model(model_folder, model_name, fm, sd, model_to_load, no_ps, label_names, device):
     if sd is not None:
-        logger.info("Use provided state dict and load into ConvNeXt-Small model")
+        logger.info(f"Use provided state dict and load into {model_to_load} model")
         import timm
         if no_ps:
             num_chans = 1
         else:
             num_chans = 2
-        model = timm.create_model('convnext_small', pretrained=False, in_chans=num_chans, num_classes=len(sum(label_names,[]))).to(device)
+        model = timm.create_model(model_to_load, pretrained=False, in_chans=num_chans, num_classes=len(sum(label_names,[]))).to(device)
         model.load_state_dict(torch.load(sd, map_location=device))
     elif fm is not None:
         logger.info("Use provided full model")
@@ -243,7 +248,7 @@ def main(args):
 
     device = get_device(args.use_cpu, args.gpu_id)
 
-    model = load_model(args.model_folder, args.model_name.lower(), args.fm, args.sd, no_ps, label_names, device)
+    model = load_model(args.model_folder, args.model_name.lower(), args.fm, args.sd, args.model_to_load, no_ps, label_names, device)
     model.eval()
 
     logger.info(f"Start inference on {len(mic_list)} micrographs as {len(dataloader)} batches")
