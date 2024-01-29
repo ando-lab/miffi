@@ -68,6 +68,11 @@ def add_args(parser):
         help="Number of workers to use for dataloader",
     )
     parser.add_argument(
+        '--model-to-train',
+        default='convnext_small.in12k',
+        help="CNN model to obtain from timm for training",
+    )
+    parser.add_argument(
         '--opt',
         default='adamw',
         help="Optimizer to use",
@@ -88,7 +93,7 @@ def add_args(parser):
         '--layer-decay',
         type=float,
         default=0.9,
-        help="Learning rate layer decay ratio to use",
+        help="Learning rate layer decay ratio to use. Only works with ConvNeXt models.",
     )
     parser.add_argument(
         '--min-lr',
@@ -126,7 +131,14 @@ def add_args(parser):
         '--sd',
         type=Path,
         default=None,
-        help="Path to a state dict file for initializing ConvNeXt-Small model",
+        help="Path to a state dict file for initializing the model",
+    )
+    parser.add_argument(
+        '-c',
+        '--checkpoint',
+        default=None,
+        type=int,
+        help="Frequency to save intermediate state dict (save every N epochs). Default is only saving the final state dict.",
     )
     parser.add_argument(
         '--use-cpu',
@@ -166,7 +178,7 @@ def combined_loss(outputs, labels, label_names, device):
         indi_loss[idx] = indi_loss_tmp
     return loss, indi_loss
 
-def train_model(model, dataloaders, dataset_sizes, criterion, accuracy, optimizer, lr_schedule, num_epochs, label_names, device):
+def train_model(model, dataloaders, dataset_sizes, criterion, accuracy, optimizer, lr_schedule, num_epochs, label_names, device, checkpoint, outdir, outname, time_stamp):
     since = time.time()
     loss_by_epoch = {'train':[], 'val':[]}
     acc_by_epoch = {'train':[], 'val':[]}
@@ -230,7 +242,10 @@ def train_model(model, dataloaders, dataset_sizes, criterion, accuracy, optimize
             acc_by_epoch[phase].append([epoch_acc,epoch_accu_indi])
 
             logger.info(f"{phase} Loss: {epoch_loss:.4f} {epoch_loss_indi} Acc: {epoch_acc:.4f} {epoch_accu_indi}")
-
+            
+            if (checkpoint is not None and epoch%checkpoint == 0) or (epoch == num_epochs - 1):
+                torch.save(model.state_dict(), outdir/f'{outname}_state_dict_{time_stamp}.{epoch}.pt'.strip('_'))
+    
     training_stats = {'loss':loss_by_epoch, 'accu':acc_by_epoch}
     
     time_elapsed = time.time() - since
@@ -240,7 +255,8 @@ def train_model(model, dataloaders, dataset_sizes, criterion, accuracy, optimize
     return model, training_stats
 
 def main(args):
-    file_handler = logging.FileHandler(filename=args.outdir/f'{args.outname}_train.log'.strip('_'))
+    time_stamp = strftime("%m_%d_%H_%M", localtime())
+    file_handler = logging.FileHandler(filename=args.outdir/f'{args.outname}_train_{time_stamp}.log'.strip('_'))
     file_handler.setFormatter(logging.root.handlers[0].formatter)
     logger.addHandler(file_handler)
     
@@ -277,7 +293,7 @@ def main(args):
         num_chans = 1
     else:
         num_chans = 2
-    model_ini = timm.create_model('convnext_small.in12k', pretrained=not args.no_pretrain, 
+    model_ini = timm.create_model(args.model_to_train, pretrained=not args.no_pretrain, 
                                   in_chans=num_chans, num_classes=len(sum(label_names,[]))).to(device)
     if args.sd is not None:
         logger.info("Load provided state dict into model")
@@ -295,13 +311,11 @@ def main(args):
     lr_schedule = cosine_scheduler(args.lr, args.min_lr, args.num_epochs, len(dataloaders['train']), args.warmup_epochs)
 
     model_final, training_stats = train_model(model_ini, dataloaders, dataset_sizes, combined_loss, combined_accu, optimizer, 
-                                              lr_schedule, args.num_epochs, label_names, device)
+                                              lr_schedule, args.num_epochs, label_names, device, args.checkpoint, args.outdir, args.outname, time_stamp)
 
     training_stats['args'] = args
-    time_stamp = strftime("%m_%d_%H_%M", localtime())
     with open(args.outdir/f'{args.outname}_training_stats_{time_stamp}.pkl'.strip('_'),'wb') as f:
         pickle.dump(training_stats,f)
-    torch.save(model_final.state_dict(), args.outdir/f'{args.outname}_state_dict_{time_stamp}.pt'.strip('_'))
     
     logger.info("All done")
 
