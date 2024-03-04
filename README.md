@@ -1,6 +1,7 @@
 # `Miffi: Cryo-EM micrograph filtering utilizing Fourier space information`
 
-BioRxiv: https://doi.org/10.1101/2023.12.08.570849
+Paper: https://doi.org/10.1016/j.jsb.2024.108072
+Preprint: https://doi.org/10.1101/2023.12.08.570849
 
 ## Repository Contents
 
