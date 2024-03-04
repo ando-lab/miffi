@@ -21,7 +21,7 @@ conda activate miffi
 
 ### Install using pip
 
-Miffi can be directly installed using pip:
+Miffi can be installed directly using pip:
 
 ```
 pip install miffi
@@ -42,7 +42,7 @@ cd miffi
 pip install .
 ```
 
-If you need to install Pytorch with a lower CUDA version due to compatibility issue with your GPU driver, follow the instruction on Pytorch website (https://pytorch.org/get-started/locally/) and install Pytorch and Torchvision with appropriate CUDA version using conda or pip before doing `pip install` in the steps above. Note that full Miffi models were generated with TorchScript in Pytorch version 1.13.1, which may not work in older Pytorch versions. However, state dicts may be used instead, or could be converted to full models using older Pytorch versions.
+If you need to install Pytorch with a lower CUDA version due to compatibility issue with your GPU driver, follow the instruction on Pytorch website (https://pytorch.org/get-started/locally/) and install Pytorch and Torchvision with an appropriate CUDA version using conda or pip before doing `pip install` in the steps above. Note that full Miffi models were generated with TorchScript in Pytorch version 1.13.1, which may not work in older Pytorch versions. However, state dicts may be used instead, or could be converted to full models using older Pytorch versions.
 
 ## Usage
 
