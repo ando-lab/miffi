@@ -1,3 +1,5 @@
+<img align="right" alt="Miffi logo" src="miffi_logo.png" width="200">
+
 # `Miffi: Cryo-EM micrograph filtering utilizing Fourier space information`
 
 Paper: https://doi.org/10.1016/j.jsb.2024.108072
